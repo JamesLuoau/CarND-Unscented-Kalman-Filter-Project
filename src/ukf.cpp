@@ -83,27 +83,33 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   if (!is_initialized_) {
     // first measurement
     cout << "UKF: " << endl;
-    x_ << 1, 1, 1, 1, 0.1;
+    x_ << 0, 0, 0, 0, 0;
 
-    P_ << 1, 0, 0, 0, 0,
-          0, 1, 0, 0, 0,
-          0, 0, 1, 0, 0,
-          0, 0, 0, 1, 0,
-          0, 0, 0, 0, 1;
+    P_ <<   0.15,   0, 0, 0, 0,
+              0, 0.15, 0, 0, 0,
+              0,    0, 1, 0, 0,
+              0,    0, 0, 1, 0,
+              0,    0, 0, 0, 1;
 
-    if (meas_package.sensor_type_ == MeasurementPackage::RADAR && use_radar_) {
+    if (meas_package.sensor_type_ == MeasurementPackage::RADAR and use_radar_) {
       /**
       Convert radar from polar to cartesian coordinates and initialize state.
       */
       double rho = meas_package.raw_measurements_[0];
       double phi = meas_package.raw_measurements_[1];
+      float rho_dot = meas_package.raw_measurements_[2];
       double x = rho * cos(phi);
       double y = rho * sin(phi);
       x_(0) = x;
       x_(1) = y;
 
+      float vx = rho_dot * cos(phi);
+      float vy = rho_dot * sin(phi);
+      float m_v = sqrt(vx*vx + vy*vy);
+      x_(2) = m_v;
+
       is_initialized_ = true;
-    } else if (meas_package.sensor_type_ == MeasurementPackage::LASER && use_laser_){
+    } else if (meas_package.sensor_type_ == MeasurementPackage::LASER and use_laser_){
       /**
       Initialize state for Laser
       */
@@ -130,9 +136,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
   Prediction(dt);
 
-  if (meas_package.sensor_type_ == MeasurementPackage::LASER && use_laser_) {
+  if (meas_package.sensor_type_ == MeasurementPackage::LASER and use_laser_) {
     UpdateLidar(meas_package);
-  } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR && use_radar_){
+  } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR and use_radar_){
     UpdateRadar(meas_package);
   }
 
