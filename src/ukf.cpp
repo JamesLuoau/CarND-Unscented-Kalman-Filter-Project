@@ -63,7 +63,9 @@ UKF::UKF() {
   n_aug_ = n_x_ + 2;  //7
 
   //define spreading parameter
-  lambda_ = 3 - n_aug_;
+  float a_ = 0.5;
+  float k_ = 5.0;
+  lambda_ = a_*a_ * (n_aug_ + k_) - n_aug_;
 
   // Matrix to hold sigma points
   Xsig_pred_ = MatrixXd(n_x_, 2 * n_aug_ + 1);
